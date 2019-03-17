@@ -1,10 +1,15 @@
 from django.shortcuts import render, redirect
 from .forms import RegisterForm, LoginForm, AddPasswordForm
-from .models import Case, Profile, Passwords
+from .models import Case, Profile, Passwords, Otp_database
 from .encryption import encrypt
 from .getPasswords import main
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login as lgin ,logout as lgout
+from .sendOTP import send_otp
+import random
+import datetime;
+from django.utils import timezone
+from django.utils.timezone import utc
 
 
 def getFromId(id):
@@ -184,3 +189,88 @@ def addPassword(request, id):
             return render(request, 'account/addPassword.html', context)
     else:
         return redirect(login)
+
+#<================== OTP Functionality =========================>
+def render_otp_request_page(request):
+    return render(request, 'account/otp_request_page.html')
+
+def change_password_view(request,username):
+    if request.method == 'POST':
+        p1=request.POST['password1']
+        p2=request.POST['password2']
+        if p1 == p2:
+            obj=Case.objects.get(username=username)
+            print(obj.password)
+            obj.password=encrypt(p1)
+            print(obj.password)
+            obj.save()
+            return redirect('login')
+        context={'error': 404}
+        return render(request,'account/change_password.html',context)
+    else:
+        print(username + " &&&")
+        context={}
+        return render(request,'account/change_password.html',context)
+def render_otp_input_page(request,username):
+    print(request)
+    print(username + "$$$$$$")
+    if request.method == 'POST':
+        otp_input=request.POST['otp_number']
+        # retrive OTP and other row from DB using username
+        otp_database=Otp_database.objects.filter(username=username)
+        print(otp_database)
+        otp_num=otp_database.values('otp_text')[0]['otp_text']
+        t_stamp=otp_database.values('timestamp')[0]['timestamp']
+        print(otp_num)
+        print(t_stamp)
+        # if timeGap >  2min delete the OTP from DB and send alert OTP expired
+        diff_time=datetime.datetime.utcnow().replace(tzinfo=utc) - t_stamp
+        print(diff_time.total_seconds())
+        if diff_time.total_seconds() > 120.0 :
+            #delete from DB
+            otp_database.delete()
+            context={"error": 0}
+            return render(request, 'account/otp_input_page.html', context)
+        #if OTP didnt match , send Failure and delete the OTP
+        if otp_input == otp_num:
+            otp_database.delete()
+            print(otp_input + "==" + otp_num)
+            context={"username": username}
+            return redirect('change_password', username)
+        else:
+            otp_database.delete()
+            context={"error": 1}
+            return render(request, 'account/otp_input_page.html', context)
+    else:
+        context={"username": username}
+        return render(request, 'account/otp_input_page.html', context)
+
+def sendOTP(request):
+    details="heelo"
+    print(details)
+    context={'otp_details':details}
+    print(request)
+    uname=request.GET['input_username']
+    print(uname)
+    query=Case.objects.filter(username=uname).values('phone_number')
+    if len(query)!=0:
+        reg_mobile=query[0]['phone_number']
+    else :
+        context = {"error": "true"}
+        return render(request, 'account/otp_request_page.html', context)
+    #generate random number
+    num=random.randint(100001,999999)
+    print(num)
+    print(reg_mobile)
+    details = send_otp(reg_mobile, str(num))
+    #print(details)
+    #save username and OTP and OTP_id and Timestamp in DB
+    opt_database=Otp_database()
+    opt_database.username=uname
+    opt_database.otp_text=num
+    opt_database.otp_id='1'
+    opt_database.timestamp=datetime.datetime.utcnow().replace(tzinfo=utc)
+    opt_database.save()
+    return redirect('one_time_password_enter', uname)
+    #return render(request, 'account/otp_input_page.html', context) #how to send details data to front end?
+    

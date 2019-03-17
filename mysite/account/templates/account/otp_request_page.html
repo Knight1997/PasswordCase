@@ -1,0 +1,60 @@
+{% extends 'account/base.html' %}
+{% block body %}
+<html>
+    <head>
+        <title>
+            OTP Request
+        </title>
+        
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Tangerine">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="../../static/account/otp_css.css">
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+    </head>
+    <body>
+        
+    <script>
+        
+        error = {{error}};
+        if(error){
+            alert("INVALID USERNAME");
+        }
+        
+    </script>
+    
+    <div class="container new-login-area">
+        <form action="/one_time_password_request">
+            <div id='sign-in' class='login-setup-section'>
+                <h3 class="request-otp-header">Please verify your Username</h3>
+                <div class="form-group login-label">
+                    <label for="inputusername">Enter Username</label>
+                    <input type="text" class="form-control input-edit" placeholder='Enter Username' name="input_username">
+                </div>
+                <input type="submit" class="btn btn-default btn-lg btn-block request-otp" id='request-otp' value="Get OTP">
+<!--                <input type="submit" value="Submit" />-->
+            </div>
+        </form>
+<!--
+        <form action="/one_time_password_request">
+            <div id='verify-otp' class="login-setup-section">
+                <i class="fa fa-chevron-left" aria-hidden="false"></i>
+                <h3 class="request-otp-header">Verify OTP</h3>
+                <div class="form-group login-label">
+                    <label for="inputnumber">One Time Password</label>
+                    <input type="password" class="form-control input-edit" placeholder='Enter OTP' id="number">
+                    <label class="pull-right resend-otp">Resend OTP</label>
+                </div>
+                <button type="button" class="btn btn-default btn-lg btn-block request-otp ">Verify</button>
+            </div>
+        </form>
+-->
+    </div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script src="../../static/account/otp_js.js"></script>
+        
+</body>
+</html>
+{% endblock %}

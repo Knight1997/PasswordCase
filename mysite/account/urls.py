@@ -21,4 +21,8 @@ urlpatterns = [
     url(r'login/', views.login, name='login'),
     url(r'profile/(?P<id>[0-9]+)/', views.profile, name='profile'),
     url(r'addPassword/(?P<id>[0-9]+)/', views.addPassword, name='addPassword'),
+    url(r'otp_request_page/', views.render_otp_request_page, name='otp_request_page'),
+    url(r'one_time_password_request/',views.sendOTP,name="one_time_password_request"),
+    url(r'one_time_password_enter/(?P<username>[A-Za-z0-9_-]{3,20})/',views.render_otp_input_page,name="one_time_password_enter"),
+    url(r'change_password/(?P<username>[A-Za-z0-9_-]{3,20})/', views.change_password_view, name='change_password'),
 ]

@@ -18,3 +18,9 @@ class Passwords(models.Model):
     email = models.CharField(max_length=100)
     encrypted_password = models.CharField(max_length=100)
     belongs_to = models.ForeignKey(Profile, on_delete=models.CASCADE)
+
+class Otp_database(models.Model):
+    username = models.CharField(max_length=20, primary_key=True)
+    otp_id = models.CharField(max_length=10)
+    otp_text = models.CharField(max_length=10)
+    timestamp = models.DateTimeField()
